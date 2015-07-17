@@ -1917,7 +1917,7 @@ function Trace-Time
 # Set-OPENV
 #########################################################################################
 # .ExternalHelp DevPack.Help.xml
-function Set-OPENV([string]$OP = $DevPackConfig.Operation, [string]$ENV = $DevPackConfig.Environment)
+function Set-OPENV([string]$OP = $DevPackConfig.Operation, [string]$ENV = $DevPackConfig.Environment, [switch]$Quiet)
 {
 	"{0}/{1}" -f $OP, $ENV | Out-File -FilePath $DevPackConfig.OPENVFilePath -Force
 
@@ -1937,6 +1937,7 @@ function Get-BuildWeek
 
     return ("{0}{1}" -f ((Get-Date).Year).ToString().SubString(2,2), $sWOY.PadLeft(2,"0"))
 }
+
 
 #########################################################################################
 # Get-DateFromBuildWeek
@@ -1958,6 +1959,7 @@ function Get-DateFromBuildWeek([string]$BuildWeek)
 	}
 	$null
 }
+
 
 #########################################################################################
 # Pop-Repo
@@ -2134,14 +2136,14 @@ else
 	$DevPackConfig.RepoRoot = $PSScriptRoot
 
 	### Default preferences (Override this in your $profile)
-	$DevPackConfig.OPENVFilePath = "c:\windows\temp\Switch-Tenant.txt"
+	$DevPackConfig.OPENVFilePath = "c:\windows\temp\Set-OPENV.txt"
 	$DevPackConfig.AutoSyncLog = "c:\windows\temp\Start-AutoSync.log"
 	$DevPackConfig.MyProfile = "$($ENV:HOME)\profile.ps1"
 	$DevPackConfig.EnableDevPackPrompt = $true
 	#$DevPackConfig.DevPackPromptTemplate = "@!NewLine!@@!LoginName!@@@!ComputerName!@ @!Location!@ (@!RepoName!@@!Changes!@) - @!Operation!@/@!Environment!@@!NewLine!@[@!BuildWeek!@/@!TimeStamp!@] "
 	$DevPackConfig.DevPackPromptTemplate = "@!NewLine!@@!Operation!@@@!Environment!@ @!Location!@ (@!RepoName!@@!Changes!@)@!NewLine!@[@!BuildWeek!@/@!TimeStamp!@] "
 
-	Write-Host ("{0}:Init:: Version {1} Chicago Title WA Developer Tool Pack ({2:MMM yyyy})" -f $ExecutionContext.SessionState.Module, $DevPackConfig.Version, (Get-DateFromBuildWeek ($DevPackConfig.Version.Split("."))[2])) -ForegroundColor Green
+	Write-Host ("{0}:Init:: Version {1} Developer Tool Pack ({2:MMM yyyy})" -f $ExecutionContext.SessionState.Module, $DevPackConfig.Version, (Get-DateFromBuildWeek ($DevPackConfig.Version.Split("."))[2])) -ForegroundColor Green
 
 	### Show prompt settings
 	Set-Prompt -Show
@@ -2156,8 +2158,8 @@ else
 	### Launch Auto-Sync
 	Start-AutoSync | Out-Null
 
-	### Set initial tenant
-	Switch-Tenants -Quiet
+	### Set initial operation / environment
+	Set-OPENV -OP "Local" -ENV "Dev"
 
 	### Instantiate SSH-Agent
 	if ($($ENV:PATH -split ';') -notcontains "$(${ENV:ProgramFiles(x86)})\git\bin") { $ENV:PATH += ";$(${ENV:ProgramFiles(x86)})\git\bin" }
