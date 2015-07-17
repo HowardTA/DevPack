@@ -2030,9 +2030,9 @@ Set-Alias -Name Undo      -Value Undo-Git
 Set-Alias -Name MergeTool -Value Merge-Git
 Set-Alias -Name Resolve   -Value Resolve-Git
 
-Set-Alias -Name Build    -Value .\v4-build-all.ps1
+Set-Alias -Name Build    -Value .\build-all.ps1
 Set-Alias -Name Update   -Value .\update-sensitive-data.ps1
-Set-Alias -Name Sync     -Value .\v41site-staticcopy-formspublic.ps1
+Set-Alias -Name Sync     -Value .\site-staticcopy-formspublic.ps1
 
 Set-Alias -Name Use      -Value Use-DevPack
 Set-Alias -Name Elapsed  -Value Trace-Time
