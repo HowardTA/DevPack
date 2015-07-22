@@ -1209,7 +1209,7 @@ function Use-Prompt
 
 		### Update title with current directory
 		[string]$sAdmin = $(if (([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]"Administrator") ) { "- Administrator" } else { "" })
-		[string]$sChanges = $(if ((Test-Path "$($sRepoRoot)\.git\rebase*")) { " REBASE" } else { if ($(git ls-files -m).Count -gt 0) {" *"} else { "" } })
+		[string]$sChanges = $(if ((Test-Path "$($sRepoRoot)\.git\rebase*")) { " REBASE" } else { try { if ($(git ls-files -m).Count -gt 0) {" *"} else { "" } } catch { "" } })
 		$Host.UI.RawUI.WindowTitle = "PS:: $sLocation ($($DevPackConfig.RepoName)$($sChanges)) $($sAdmin)"
 
         ### Populate custom prompt
