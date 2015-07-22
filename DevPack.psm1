@@ -2051,6 +2051,10 @@ Set-Alias -Name New      -Value New-Object
 Export-ModuleMember -Function * -Alias *
 
 #region IF MISSING REQUIRED ENVIRONMENT SETTINGS do First-time Setup (Profile Creation)
+[string]$sGitBinRoot = "$(${ENV:ProgramFiles(x86)})\git\bin"
+[string]$sP4MergeBinRoot = "$($ENV:ProgramFiles)\Perforce"
+if (-not (Test-Path $sGitBinRoot -PathType Container)) { Write-Warning ("{0}:Setup:: Git from http://git-scm.com is not installed." -f $ExecutionContext.SessionState.Module) }
+if (-not (Test-Path $sP4MergeBinRoot -PathType Container)) { Write-Warning ("{0}:Setup:: P4Merge from http://www.perforce.com is not installed." -f $ExecutionContext.SessionState.Module) }
 if (-not (Test-Path $profile -PathType Leaf))
 {
 	if ($ExecutionContext.Host.Name -ne "Windows PowerShell ISE Host" -and $ExecutionContext.Host.Name -ne "ConsoleHost")
@@ -2162,7 +2166,7 @@ else
 	Set-OPENV -OP "Local" -ENV "Dev"
 
 	### Instantiate SSH-Agent
-	if ($($ENV:PATH -split ';') -notcontains "$(${ENV:ProgramFiles(x86)})\git\bin") { $ENV:PATH += ";$(${ENV:ProgramFiles(x86)})\git\bin" }
+	if ($($ENV:PATH -split ';') -notcontains $sGitBinRoot) { $ENV:PATH += ";$sGitBinRoot" }
 	. "$($DevPackConfig.RepoRoot)\ssh-agent-utils.ps1"
 }
 #endregion
