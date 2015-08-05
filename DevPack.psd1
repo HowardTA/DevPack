@@ -18,7 +18,7 @@
 	GUID = '2d7901b6-3b88-4717-a1e5-b345e61fc255'
 
 	# Author of this module
-	Author = 'REDMOND\v-tohow'
+	Author = 'Todd Howard'
 
 	# Company or vendor of this module
 	CompanyName = 'Total180 Global'
@@ -27,7 +27,7 @@
 	Copyright = '(c) 2012-2015 Total180 Global - All rights reserved.'
 
 	# Description of the functionality provided by this module
-	Description = ''
+	Description = 'PowerShell tools for developing with Git and Visual Studio'
 
 	# Minimum version of the Windows PowerShell engine required by this module
 	PowerShellVersion = '4.0'
