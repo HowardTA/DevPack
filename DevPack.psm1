@@ -8,6 +8,7 @@
 # ------------- --- ------------------- --------------------------------------------------------------------
 # 1.15.1529     0   Todd Howard         Created
 # 1.15.1531     0   Todd Howard         Added Show-Repo; Added Get-DynamicParam; Set-Repo now enumerates repository with dynamic parameter
+# 1.15.1533     0   Todd Howard         Minor fixes.
 #
 [string]$Version = "1.15.1531.0"  ### <Major Release Number>.<Number of Features>.<Build Week>.<Revision>
 [string[]]$Features = @(
@@ -113,13 +114,23 @@ function Submit-Git
     [CmdletBinding()]
     param
     (
+		[Alias('m')]
+        [string]$Message = $null
     )
 
     Write-Verbose ("{0}:Submit-Git:: Running 'git log -1'..." -f $ExecutionContext.SessionState.Module)
     git log -1
 
-    Write-Verbose ("{0}:Submit-Git:: Running 'git commit'..." -f $ExecutionContext.SessionState.Module)
-    git commit
+    if ($Message.Length -gt 0)
+    {
+        Write-Verbose ("{0}:Submit-Git:: Running 'git commit -m'..." -f $ExecutionContext.SessionState.Module)
+        git commit -m $Message
+    }
+    else
+    {
+        Write-Verbose ("{0}:Submit-Git:: Running 'git commit'..." -f $ExecutionContext.SessionState.Module)
+        git commit
+    }
 }
 
 
@@ -192,7 +203,7 @@ function Undo-Git
     [CmdletBinding()]
     param
     (
-        [string]$FilePath = ".",
+        [string]$FilePath,
         [switch]$FromClipboard
     )
 
@@ -391,6 +402,52 @@ function Pop-Shelf
 
     Get-Content "$($sShelfDir)\FileList.txt" | % {
         Copy-Item -Path "$($sShelfDir)\$([IO.Path]::GetFileName($_))" -Destination "$($DevPackConfig.RepoRoot)\$($_)" -Verbose
+    }
+}
+
+#########################################################################################
+# Pop-Repo
+#########################################################################################
+# .ExternalHelp DevPack.Help.xml
+function Pop-Repo
+{
+    Set-Location $DevPackConfig.RepoRoot
+}
+
+
+#########################################################################################
+# Set-Repo
+#########################################################################################
+# .ExternalHelp DevPack.Help.xml
+function Set-Repo
+{
+    [CmdletBinding()]
+    param ()
+    dynamicparam { return $(Get-DynamicParam -Name:"Path" -ValidateSet:(Show-Repo | Select-Object -ExpandProperty Path) -Position:1 -Required:$false) }
+
+    begin {
+        $Path = $PsBoundParameters["Path"]
+    }
+
+    process {
+        Set-Location $Path
+        $DevPackConfig.RepoRoot = $Path
+    }
+}
+
+
+#########################################################################################
+# Show-Repo
+#########################################################################################
+# .ExternalHelp DevPack.Help.xml
+function Show-Repo
+{
+    $sUpOne = [IO.Path]::GetDirectoryName($DevPackConfig.RepoRoot);
+    Get-ChildItem "$sUpOne\*\.git\HEAD" | Select-Object -ExpandProperty FullName | % {
+        $oRepo = New-Object PSObject | Select Name, Path
+        $oRepo.Name = [IO.Path]::GetDirectoryName($_).Replace($sUpOne + "\", "").Replace("\.git" ,"")
+        $oRepo.Path = $sUpOne + '\' + $oRepo.Name
+        $oRepo
     }
 }
 
@@ -1995,53 +2052,6 @@ function Get-DateFromBuildWeek([string]$BuildWeek)
         }
     }
     $null
-}
-
-
-#########################################################################################
-# Pop-Repo
-#########################################################################################
-# .ExternalHelp DevPack.Help.xml
-function Pop-Repo
-{
-    Set-Location $DevPackConfig.RepoRoot
-}
-
-
-#########################################################################################
-# Set-Repo
-#########################################################################################
-# .ExternalHelp DevPack.Help.xml
-function Set-Repo
-{
-    [CmdletBinding()]
-    param ()
-    dynamicparam { return $(Get-DynamicParam -Name:"Path" -ValidateSet:(Show-Repo | Select-Object -ExpandProperty Path) -Position:1 -Required:$false) }
-
-    begin {
-        $Path = $PsBoundParameters["Path"]
-    }
-
-    process {
-        Set-Location $Path
-        $DevPackConfig.RepoRoot = $Path
-    }
-}
-
-
-#########################################################################################
-# Show-Repo
-#########################################################################################
-# .ExternalHelp DevPack.Help.xml
-function Show-Repo
-{
-    $sUpOne = [IO.Path]::GetDirectoryName($DevPackConfig.RepoRoot);
-    Get-ChildItem "$sUpOne\*\.git\HEAD" | Select-Object -ExpandProperty FullName | % {
-        $oRepo = New-Object PSObject | Select Name, Path
-        $oRepo.Name = [IO.Path]::GetDirectoryName($_).Replace($sUpOne + "\", "").Replace("\.git" ,"")
-        $oRepo.Path = $sUpOne + '\' + $oRepo.Name
-        $oRepo
-    }
 }
 
 
